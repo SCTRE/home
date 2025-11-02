@@ -38,7 +38,7 @@
       color: #eee;
     }
 
-    /* 雪花样式（与标签.html完全一致） */
+    /* 雪花样式（修改了z-index） */
     .snow {
       position: fixed;
       top: -10px;
@@ -46,7 +46,7 @@
       user-select: none;
       pointer-events: none;
       animation: snowfall linear forwards;
-      z-index: 99;
+      z-index: 1000001; /* 修改为更高的z-index，确保雪花在最前面 */
       text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
     }
     @keyframes snowfall {
@@ -252,6 +252,7 @@
       height: 100dvh;
       border-radius: 0;
       box-shadow: 0 28px 60px rgba(0, 0, 0, 0.4);
+      z-index: 1000000; /* 保持最大化便签的高层级 */
     }
 
     .card-header {
