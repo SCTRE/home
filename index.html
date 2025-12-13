@@ -22,7 +22,7 @@
       height: 100%;
       margin: 0;
       overflow: hidden;
-      font-family: "Microsoft YaHei", sans-serif;
+      font-family: "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       transition: background 1s;
       background: radial-gradient(circle at 50% 45%, #fef6f9 0%, #cbeeff 100%);
       /* 防止移动端弹性滚动 */
@@ -199,10 +199,12 @@
     #board {
       position: relative;
       width: 100vw;
-      height: 100dvh;
+      height: 100vh; /* 兼容性回退：旧版浏览器 */
+      height: 100dvh; /* 现代浏览器 */
       overflow: hidden;
     }
     body.is-mobile #board {
+      height: 100vh;
       height: 100dvh; /* 移动端优化 */
     }
     .card {
@@ -228,6 +230,7 @@
       position: fixed;
       inset: 0;
       width: 100vw;
+      height: 100vh; /* 兼容性回退 */
       height: 100dvh;
       border-radius: 0;
       box-shadow: 0 28px 60px rgba(0, 0, 0, 0.4);
@@ -333,6 +336,7 @@
       width: 100%;
       height: 100%;
       text-align: center;
+      padding: 32px; /* 兼容性回退 */
       padding: clamp(32px, min(10vw, 10vh), 128px);
       padding-top: clamp(72px, min(14vw, 14vh), 192px);
       font-size: clamp(48px, min(18vw, 18vh), 200px);
@@ -529,8 +533,9 @@
     }
 
     function applyTransform(card, state) {
-      const scale = state.scale ?? 1;
-      const angle = state.angle ?? 0;
+      // 兼容性修复：替换 ?? 运算符，防止低版本浏览器报错白屏
+      const scale = (state.scale !== undefined && state.scale !== null) ? state.scale : 1;
+      const angle = (state.angle !== undefined && state.angle !== null) ? state.angle : 0;
       card.style.transform = `scale(${scale}) rotate(${angle}deg)`;
     }
 
@@ -800,14 +805,18 @@
         bgMusic.volume = 0.3;
         
         // 移动端音频播放兼容处理
-        bgMusic.play().catch(e => {
-            console.log('自动播放需要用户交互', e);
-            // 可以选择添加一个点击页面的一次性监听器来重试播放
-            document.body.addEventListener('click', function playOnce() {
-                bgMusic.play();
-                document.body.removeEventListener('click', playOnce);
-            }, { once: true });
-        });
+        try {
+          bgMusic.play().catch(e => {
+              console.log('自动播放需要用户交互', e);
+              // 可以选择添加一个点击页面的一次性监听器来重试播放
+              document.body.addEventListener('click', function playOnce() {
+                  bgMusic.play();
+                  document.body.removeEventListener('click', playOnce);
+              }, { once: true });
+          });
+        } catch (err) {
+          console.error("Music play error:", err);
+        }
 
         // 初始生成
         for (let i = 0; i < initialCardCount; i++) {
